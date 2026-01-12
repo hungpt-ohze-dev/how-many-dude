@@ -14,7 +14,7 @@ public class TickManager : LiveSingleton<TickManager>
     {
         base.OnInit();
 
-        gamePlayTick = new TickData(Segment.Update, 1f);
+        gamePlayTick = new TickData(Segment.Update, 0.1f);
     }
 
 }

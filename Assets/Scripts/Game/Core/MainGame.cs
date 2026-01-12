@@ -1,5 +1,4 @@
 using com.homemade.pattern.singleton;
-using com.homemade.tick;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -9,17 +8,10 @@ public class MainGame : MonoSingleton<MainGame>
     [SerializeField] private Camera mainCam;
     [SerializeField] private Camera subCam;
 
-    private int creativeId = 1;
-
     public static Camera MainCam => Instance.mainCam;
 
     protected override void Start()
     {
-        TickManager.GamePlayTick.Action += TestTick;
-        TickManager.GamePlayTick.Register();
-
-        creativeId = DataManager.Config.GamePlayCreative;
-
         LoadHome();
     }
 
@@ -34,13 +26,11 @@ public class MainGame : MonoSingleton<MainGame>
 
     public async void LoadGame()
     {
-        //await UIManager.Extra.TransitionScreen.TransitionIn();
+        await UIManager.Extra.TransitionScreen.TransitionIn();
 
-        //MonoScene.Instance.LoadGameScene(OnDoneLoadGame);
+        MonoScene.Instance.LoadGameScene(OnDoneLoadGame);
 
-        //var gameScreen = UIManager.Instance.ShowScreen<UIGameScreen>();
-
-        LoadCreative();
+        var gameScreen = UIManager.Instance.ShowScreen<UIGameScreen>();
     }
 
     private void OnDoneLoadGame()
@@ -48,23 +38,18 @@ public class MainGame : MonoSingleton<MainGame>
 
     }
 
-    private void TestTick()
-    {
-        //Debug.Log("AAA");
-    }
-
     public async void ResetLevel()
     {
         await UIManager.Extra.TransitionScreen.TransitionIn();
 
         await UniTask.DelayFrame(1);
-        MonoScene.Instance.RemoveCreativeScene(creativeId);
+        MonoScene.Instance.RemoveScene(NameSceneEnum.Gameplay);
 
         await UniTask.DelayFrame(1);
         MonoScene.Instance.RemoveLevelScene();
 
         await UniTask.WaitForSeconds(0.2f);
-        MonoScene.Instance.LoadCreativeScene(1);
+        MonoScene.Instance.LoadGameScene(OnDoneLoadGame);
     }
 
     public async void NextLevel()
@@ -111,14 +96,5 @@ public class MainGame : MonoSingleton<MainGame>
         float camSize = defaultWidth / 2f / currentAspect * targetAspect;
         mainCam.orthographicSize = camSize;
         subCam.orthographicSize = camSize;
-    }
-
-    public async void LoadCreative()
-    {
-        await UIManager.Extra.TransitionScreen.TransitionIn();
-
-        MonoScene.Instance.LoadCreativeScene(creativeId);
-
-        var gameScreen = UIManager.Instance.ShowScreen<UIGameScreen>();
     }
 }

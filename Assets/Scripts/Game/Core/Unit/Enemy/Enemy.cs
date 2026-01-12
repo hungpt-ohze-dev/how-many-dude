@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Dude : UnitBase
+public class Enemy : UnitBase
 {
     public override void Init()
     {

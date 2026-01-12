@@ -1,8 +1,7 @@
 ﻿using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 
-public class UnitState : MonoBehaviour
+public class UnitStateVisual : MonoBehaviour
 {
     [Header("Component")]
     [SerializeField] private SpriteRenderer spriteRen;
@@ -12,9 +11,6 @@ public class UnitState : MonoBehaviour
     public Sprite idleSprite;
     public Sprite attackSprite;
     public Sprite dieSprite;
-
-    [Header("State")]
-    public UnitStateEnum currentState;
 
     [Header("Move Animation")]
     [SerializeField] private float rotateAngle = 15f;
@@ -27,9 +23,10 @@ public class UnitState : MonoBehaviour
     private Tween rotateTween;
     private Tween jumpTween;
 
+    private UnitStateEnum currentState;
     private float startY;
 
-    private void Start()
+    public void Set()
     {
         startY = renderTrans.localPosition.y;
     }
@@ -39,7 +36,6 @@ public class UnitState : MonoBehaviour
     public void ChangeState(UnitStateEnum newState)
     {
         if (currentState == newState) return;
-
         currentState = newState;
 
         switch (currentState)
