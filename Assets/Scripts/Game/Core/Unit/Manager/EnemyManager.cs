@@ -21,6 +21,7 @@ public class EnemyManager : MonoBehaviour
         foreach (var enemy in enemiesInGame)
         {
             enemy.UpdateState();
+            enemy.UpdateBuff();
         }
     }
 

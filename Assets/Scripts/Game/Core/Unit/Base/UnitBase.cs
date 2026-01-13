@@ -10,6 +10,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     [Header("Component")]
     [SerializeField] private UnitVisual visual;
     [SerializeField] private UnitFeedback feedback;
+    [SerializeField] private BuffController buff;
 
     [Header("Agent")]
     [SerializeField] private Agent agent;
@@ -126,9 +127,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     public void Die()
     {
         isDie = true;
-
-        target = null;
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
 
         StopAllCoroutines();
         visual.ChangeState(UnitStateEnum.Die);
@@ -137,7 +136,12 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     //======================== Take Damage ======================
     public virtual void TakeDamage(int damage)
     {
-        //Debug.Log("AAA");
+        buff.health.CurrentHealth -= damage;
+
+        if(buff.health.CurrentHealth <= 0)
+        {
+            Die();
+        }
     }
 
     #endregion
@@ -244,18 +248,29 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     public void SetTarget(ICombatEntity target)
     {
         this.target = target;
-        followAgent.TargetAgent = target.Agent;
 
         if (target == null)
         {
             StopAllCoroutines();
             return;
         }
+
+        followAgent.TargetAgent = target.Agent;
     }
 
     public ICombatEntity GetTarget()
     {
         return target;
+    }
+
+    #endregion
+
+    #region Buff
+    public void UpdateBuff()
+    {
+        if (isDie) return;
+
+        buff.UpdateBuff();
     }
 
     #endregion

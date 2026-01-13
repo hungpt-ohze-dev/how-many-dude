@@ -164,10 +164,11 @@ MonoBehaviour:
   currentState: 0
   visual: {fileID: 9147026593851827003}
   feedback: {fileID: 5465372439941668345}
+  buff: {fileID: 5836273772338685988}
   agent: {fileID: 2554429451418158504}
   followAgent: {fileID: 1402321891270754935}
   moveSpeed: 10
-  stopDistance: 0.2
+  stopDistance: 1.5
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -206,6 +207,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 91b1a1de0e154c046820b6415cbcc239, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5836273772338685988 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5967524431674230945, guid: 125ed88322271d54e871d0b27026b321, type: 3}
+  m_PrefabInstance: {fileID: 157199138180915333}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3abf32fa0204e79489dfeda15f97ff7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &7514733881172255294 stripped

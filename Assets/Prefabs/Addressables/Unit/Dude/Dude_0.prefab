@@ -120,6 +120,7 @@ MonoBehaviour:
   currentState: 0
   visual: {fileID: 8190231650728870764}
   feedback: {fileID: 4936419310011891118}
+  buff: {fileID: 6892711268870834291}
   agent: {fileID: 3182462184795842047}
   followAgent: {fileID: 2030916892230640160}
   moveSpeed: 10
@@ -162,6 +163,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 91b1a1de0e154c046820b6415cbcc239, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6892711268870834291 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5967524431674230945, guid: 125ed88322271d54e871d0b27026b321, type: 3}
+  m_PrefabInstance: {fileID: 970301123812950226}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3abf32fa0204e79489dfeda15f97ff7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &7426711581566730857 stripped
