@@ -1,9 +1,8 @@
-﻿using MoreMountains.Feedbacks;
-using ProjectDawn.LocalAvoidance;
+﻿using ProjectDawn.LocalAvoidance;
 using System.Collections;
 using UnityEngine;
 
-public abstract class UnitBase : MonoBehaviour, IDamageable
+public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
 {
     [Header("Info")]
     public UnitStateEnum currentState;
@@ -27,12 +26,16 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackCooldown = 0.2f;
 
-
-    private bool isMoving;
     private bool isAttacking;
     private bool isDie;
 
-    private UnitBase target;
+    private ICombatEntity target;
+
+    // Get set
+    public bool IsDead => isDie;
+    public Transform Transform => this.transform;
+
+    public Agent Agent => agent;
 
     //======================== Setup ======================
     public virtual void Init()
@@ -45,6 +48,18 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     }
 
     #region Behavior
+    public void StartAction()
+    {
+        isAttacking = false;
+    }
+
+    public void StopAction()
+    {
+        StopAllCoroutines();
+        StopMoving();
+        visual.ChangeState(UnitStateEnum.Idle);
+    }
+
     //======================== Idle ======================
     public void Idle()
     {
@@ -52,48 +67,13 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     }
 
     //======================== Move ======================
-    public void MoveToTarget()
-    {
-        if (isMoving) return;
-
-        StartCoroutine(MoveToTargetCoroutine(target.transform));
-    }
-
-    private IEnumerator MoveToTargetCoroutine(Transform target)
-    {
-        isMoving = true;
-
-        visual.ChangeState(UnitStateEnum.Move);
-        visual.StartRotateMove();
-        visual.Facing(target);
-
-        while (target != null)
-        {
-            float distance = Vector2.Distance(transform.position, target.position);
-
-            if (distance <= stopDistance)
-                break;
-
-            Vector3 direction = (target.position - transform.position).normalized;
-            transform.position += moveSpeed * Time.deltaTime * direction;
-
-            yield return null; // chờ frame tiếp theo
-        }
-
-        // Reach target
-        isMoving = false;
-
-        visual.StopRotateMove();
-        visual.ChangeState(UnitStateEnum.Idle);
-    }
-
     private void Moving()
     {
         if(target == null) return;
 
         visual.ChangeState(UnitStateEnum.Move);
         visual.StartRotateMove();
-        visual.Facing(target.transform);
+        visual.Facing(target.Transform);
     }
 
     private void StopMoving()
@@ -115,7 +95,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
         isAttacking = true;
         visual.ChangeState(UnitStateEnum.Attack);
         DealDamage();
-        feedback.AttackForce(target.transform);
+        feedback.AttackForce(target.Transform);
 
         yield return new WaitForSeconds(attackCooldown);
         visual.ChangeState(UnitStateEnum.Idle);
@@ -146,6 +126,9 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     public void Die()
     {
         isDie = true;
+
+        target = null;
+        gameObject.SetActive(false);
 
         StopAllCoroutines();
         visual.ChangeState(UnitStateEnum.Die);
@@ -207,7 +190,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     {
         if (target == null) return;
 
-        float dist = Vector3.Distance(transform.position, target.transform.position);
+        float dist = Vector3.Distance(transform.position, target.Transform.position);
 
         if (dist > stopDistance)
             ChangeState(UnitStateEnum.Move);
@@ -252,6 +235,27 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
 
         // Logic attack
         Attack();
+    }
+
+    #endregion
+
+    #region Combat 
+
+    public void SetTarget(ICombatEntity target)
+    {
+        this.target = target;
+        followAgent.TargetAgent = target.Agent;
+
+        if (target == null)
+        {
+            StopAllCoroutines();
+            return;
+        }
+    }
+
+    public ICombatEntity GetTarget()
+    {
+        return target;
     }
 
     #endregion

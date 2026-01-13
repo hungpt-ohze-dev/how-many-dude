@@ -4,12 +4,39 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
-    private List<Enemy> enemiesInGame = new();
+    public List<Enemy> enemiesInGame = new();
 
-    public void SpawnEnemies()
+    public List<Enemy> SpawnEnemies()
     {
+        foreach(var e in enemiesInGame)
+        {
+            e.Init();
+        }
 
+        return enemiesInGame;
     }
 
-    
+    public void UpdateState()
+    {
+        foreach (var enemy in enemiesInGame)
+        {
+            enemy.UpdateState();
+        }
+    }
+
+    public void StartAction()
+    {
+        foreach (var enemy in enemiesInGame)
+        {
+            enemy.StartAction();
+        }
+    }
+
+    public void StopAction()
+    {
+        foreach (var enemy in enemiesInGame)
+        {
+            enemy.StopAction();
+        }
+    }
 }

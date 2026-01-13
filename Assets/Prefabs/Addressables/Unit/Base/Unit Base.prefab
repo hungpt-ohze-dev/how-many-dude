@@ -134,7 +134,7 @@ MonoBehaviour:
     z: 0
   Speed: 10
   TurnSpeed: 15
-  Radius: 0.65
+  Radius: 0.6
   StopDistance: 1
   Velocity:
     x: 0

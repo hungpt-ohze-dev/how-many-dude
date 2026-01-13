@@ -123,7 +123,7 @@ MonoBehaviour:
   agent: {fileID: 3182462184795842047}
   followAgent: {fileID: 2030916892230640160}
   moveSpeed: 10
-  stopDistance: 0.2
+  stopDistance: 2
   targetLayer:
     serializedVersion: 2
     m_Bits: 128

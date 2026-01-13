@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Mathematics;
-using Unity.Collections;
 
 namespace ProjectDawn.LocalAvoidance.Demo
 {

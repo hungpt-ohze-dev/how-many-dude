@@ -9,14 +9,12 @@ public class DudeManager : MonoBehaviour
 
     public List<Dude> listDudes = new();
 
-    private void Start()
+    public void Init()
     {
         foreach (var dude in listDudes)
         {
             dude.Init();
-            dude.SetTarget(target.GetComponent<UnitBase>());
         }
-
     }
 
     public void UpdateState()
@@ -24,6 +22,22 @@ public class DudeManager : MonoBehaviour
         foreach (var dude in listDudes)
         {
             dude.UpdateState();
+        }
+    }
+
+    public void StartAction()
+    {
+        foreach (var dude in listDudes)
+        {
+            dude.StartAction();
+        }
+    }
+
+    public void StopAction()
+    {
+        foreach (var dude in listDudes)
+        {
+            dude.StopAction();
         }
     }
 }

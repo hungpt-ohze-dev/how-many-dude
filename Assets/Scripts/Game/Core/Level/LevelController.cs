@@ -1,5 +1,7 @@
 using com.homemade.pattern.singleton;
 using com.homemade.tick;
+using ProjectDawn.LocalAvoidance.Demo;
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,12 +9,19 @@ using UnityEngine;
 public class LevelController : MonoSingleton<LevelController>
 {
     [Header("Manager")]
+    [SerializeField] private AgentSystem agentSystem;
     [SerializeField] private DudeManager dudeManager;
     [SerializeField] private EnemyManager enemyManager;
+    [SerializeField] private CombatManager combatManager;
 
     // Static
+    public AgentSystem AgentSystem => agentSystem;
     public DudeManager Dude => Instance.dudeManager;
     public EnemyManager Enemy => Instance.enemyManager;
+    public CombatManager Combat => Instance.combatManager;
+
+    // Private
+    private bool isPlaying = false;
 
     protected override void OnInit()
     {
@@ -21,14 +30,46 @@ public class LevelController : MonoSingleton<LevelController>
 
     protected override void Start()
     {
+        agentSystem.enabled = false;
+
         TickManager.GamePlayTick.Action += GamePlayTick;
         TickManager.GamePlayTick.Register();
 
-        enemyManager.SpawnEnemies();
+        var enemies = enemyManager.SpawnEnemies();
+        dudeManager.Init();
+
+        combatManager.allies.AddRange(dudeManager.listDudes);
+        combatManager.enemies.AddRange(enemies);
     }
 
     private void GamePlayTick()
     {
+        if (!isPlaying) return;
+
         dudeManager.UpdateState();
+        enemyManager.UpdateState();
+
+        combatManager.CheckUnit();
+    }
+
+    // ======================= Basic ==========================
+    [Button]
+    public void StartLevel()
+    {
+        isPlaying = true;
+        agentSystem.enabled = true;
+
+        dudeManager.StartAction();
+        enemyManager.StartAction();
+    }
+
+    [Button]
+    public void LevelDone()
+    {
+        isPlaying = false;
+        agentSystem.enabled = false;
+
+        dudeManager.StopAction();
+        enemyManager.StopAction();
     }
 }
