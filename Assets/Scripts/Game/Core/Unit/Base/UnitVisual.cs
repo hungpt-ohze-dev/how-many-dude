@@ -1,7 +1,7 @@
 ﻿using DG.Tweening;
 using UnityEngine;
 
-public class UnitStateVisual : MonoBehaviour
+public class UnitVisual : MonoBehaviour
 {
     [Header("Component")]
     [SerializeField] private SpriteRenderer spriteRen;

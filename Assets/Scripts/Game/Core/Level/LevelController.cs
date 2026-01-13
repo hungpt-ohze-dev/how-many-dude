@@ -16,7 +16,7 @@ public class LevelController : MonoSingleton<LevelController>
 
     protected override void OnInit()
     {
-        
+        Application.targetFrameRate = 60;
     }
 
     protected override void Start()

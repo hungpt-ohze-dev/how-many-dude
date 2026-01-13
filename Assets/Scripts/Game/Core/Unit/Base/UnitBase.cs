@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using MoreMountains.Feedbacks;
+using ProjectDawn.LocalAvoidance;
+using System.Collections;
 using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour, IDamageable
@@ -7,7 +9,12 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     public UnitStateEnum currentState;
 
     [Header("Component")]
-    [SerializeField] private UnitStateVisual stateVisual;
+    [SerializeField] private UnitVisual visual;
+    [SerializeField] private UnitFeedback feedback;
+
+    [Header("Agent")]
+    [SerializeField] private Agent agent;
+    [SerializeField] private FollowAgent followAgent;
 
     [Header("Value")]
     public float moveSpeed = 10f;
@@ -30,14 +37,18 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     //======================== Setup ======================
     public virtual void Init()
     {
-        stateVisual.Set();
+        visual.Set();
+
+        // Agent
+        agent.Speed = moveSpeed;
+        agent.StopDistance = stopDistance;
     }
 
     #region Behavior
     //======================== Idle ======================
     public void Idle()
     {
-        stateVisual.ChangeState(currentState);
+        visual.ChangeState(currentState);
     }
 
     //======================== Move ======================
@@ -52,9 +63,9 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     {
         isMoving = true;
 
-        stateVisual.ChangeState(UnitStateEnum.Move);
-        stateVisual.StartRotateMove();
-        stateVisual.Facing(target);
+        visual.ChangeState(UnitStateEnum.Move);
+        visual.StartRotateMove();
+        visual.Facing(target);
 
         while (target != null)
         {
@@ -72,8 +83,23 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
         // Reach target
         isMoving = false;
 
-        stateVisual.StopRotateMove();
-        stateVisual.ChangeState(UnitStateEnum.Idle);
+        visual.StopRotateMove();
+        visual.ChangeState(UnitStateEnum.Idle);
+    }
+
+    private void Moving()
+    {
+        if(target == null) return;
+
+        visual.ChangeState(UnitStateEnum.Move);
+        visual.StartRotateMove();
+        visual.Facing(target.transform);
+    }
+
+    private void StopMoving()
+    {
+        visual.StopRotateMove();
+        visual.ChangeState(UnitStateEnum.Idle);
     }
 
     //======================== Attack ======================
@@ -87,11 +113,12 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     private IEnumerator AttackIEnum()
     {
         isAttacking = true;
-        stateVisual.ChangeState(UnitStateEnum.Attack);
+        visual.ChangeState(UnitStateEnum.Attack);
         DealDamage();
+        feedback.AttackForce(target.transform);
 
         yield return new WaitForSeconds(attackCooldown);
-        stateVisual.ChangeState(UnitStateEnum.Idle);
+        visual.ChangeState(UnitStateEnum.Idle);
 
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
@@ -121,13 +148,13 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
         isDie = true;
 
         StopAllCoroutines();
-        stateVisual.ChangeState(UnitStateEnum.Die);
+        visual.ChangeState(UnitStateEnum.Die);
     }
 
     //======================== Take Damage ======================
     public virtual void TakeDamage(int damage)
     {
-        Debug.Log("AAA");
+        //Debug.Log("AAA");
     }
 
     #endregion
@@ -138,6 +165,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     public void SetTarget(UnitBase target)
     {
         this.target = target;
+        followAgent.TargetAgent = target.GetComponent<Agent>();
 
         if (target == null)
         {
@@ -193,20 +221,19 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
     {
         if (target == null)
         {
+            StopMoving();
             ChangeState(UnitStateEnum.Idle);
             return;
         }
 
-        float dist = Vector3.Distance(transform.position, target.transform.position);
-
-        if (dist <= stopDistance)
+        if (agent.IsStopped)
         {
+            StopMoving();
             ChangeState(UnitStateEnum.Attack);
             return;
         }
 
-        // Move to target
-        MoveToTarget();
+        Moving();
     }
 
     void UpdateAttack()
@@ -217,9 +244,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
             return;
         }
 
-        float dist = Vector3.Distance(transform.position, target.transform.position);
-
-        if (dist > stopDistance)
+        if (!agent.IsStopped)
         {
             ChangeState(UnitStateEnum.Move);
             return;

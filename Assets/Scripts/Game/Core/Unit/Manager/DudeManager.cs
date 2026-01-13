@@ -13,6 +13,7 @@ public class DudeManager : MonoBehaviour
     {
         foreach (var dude in listDudes)
         {
+            dude.Init();
             dude.SetTarget(target.GetComponent<UnitBase>());
         }
 
