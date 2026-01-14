@@ -165,17 +165,19 @@ MonoBehaviour:
   visual: {fileID: 9147026593851827003}
   feedback: {fileID: 5465372439941668345}
   buff: {fileID: 5836273772338685988}
+  attack: {fileID: 1809274116006948220}
   agent: {fileID: 2554429451418158504}
   followAgent: {fileID: 1402321891270754935}
   moveSpeed: 10
-  stopDistance: 1.5
+  stopDistance: 2
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
   attackPoint: {fileID: 7514733881172255294}
   attackRange: 2
-  attackDamage: 10
-  attackCooldown: 0.2
+  attackDamage: 1
+  baseAttackCooldown: 1
+  attackSpeedMultiplier: 1
 --- !u!114 &1402321891270754935 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1249880408690516722, guid: 125ed88322271d54e871d0b27026b321, type: 3}
@@ -185,6 +187,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1f85567b8fb69cf428e15253a0aa42a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1809274116006948220 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1960665560746446329, guid: 125ed88322271d54e871d0b27026b321, type: 3}
+  m_PrefabInstance: {fileID: 157199138180915333}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ddc90f61c655404283211eb828771b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &2554429451418158504 stripped

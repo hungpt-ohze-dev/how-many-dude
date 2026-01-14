@@ -1,18 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitAttack : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [Header("Component")]
+    [SerializeField] private SpriteRenderer bodyRender;
 
-    // Update is called once per frame
-    void Update()
+    public void FacingAttack()
     {
-        
+        float xScale = bodyRender.flipX ? -1f : 1f;
+        transform.localScale = new Vector3(xScale, 1f, 1f);
     }
 }

@@ -785,6 +785,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea93d4e2f01cbd346bcaa15a7e411bae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  battleResult: 0
   allies: []
   enemies: []
 --- !u!1 &1287353945
@@ -1066,6 +1067,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 322598867237438881, guid: 580199e82a3f5ac4585bc2e81f410911, type: 3}
+      propertyPath: CurrentHealth
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 961288821471284991, guid: 580199e82a3f5ac4585bc2e81f410911, type: 3}
       propertyPath: m_Name
       value: Enemy_0 (1)
@@ -1128,6 +1133,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 322598867237438881, guid: 580199e82a3f5ac4585bc2e81f410911, type: 3}
+      propertyPath: CurrentHealth
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 961288821471284991, guid: 580199e82a3f5ac4585bc2e81f410911, type: 3}
       propertyPath: m_Name
       value: Enemy_0

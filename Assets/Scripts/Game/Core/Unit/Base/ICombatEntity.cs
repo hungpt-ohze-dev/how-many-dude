@@ -9,5 +9,6 @@ public interface ICombatEntity
 
     void SetTarget(ICombatEntity target);
     ICombatEntity GetTarget();
+    void Done();
 }
 

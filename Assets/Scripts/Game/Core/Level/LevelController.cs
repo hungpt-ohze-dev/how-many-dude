@@ -30,25 +30,35 @@ public class LevelController : MonoSingleton<LevelController>
 
     protected override void Start()
     {
+        // Agent
         agentSystem.enabled = false;
 
+        // Tick
         TickManager.GamePlayTick.Action += GamePlayTick;
         TickManager.GamePlayTick.Register();
+        TickManager.CombatTick.Action += CombatTick;
+        TickManager.CombatTick.Register();
 
+        // Init
         var enemies = enemyManager.SpawnEnemies();
         dudeManager.Init();
 
         combatManager.allies.AddRange(dudeManager.listDudes);
         combatManager.enemies.AddRange(enemies);
+        combatManager.Setup();
     }
 
+    // ======================= Tick ============================
     private void GamePlayTick()
     {
         if (!isPlaying) return;
 
         dudeManager.UpdateState();
         enemyManager.UpdateState();
+    }
 
+    private void CombatTick()
+    {
         combatManager.CheckUnit();
     }
 

@@ -4,19 +4,33 @@ using UnityEngine;
 
 public class CombatManager : MonoBehaviour
 {
+    [Header("Info")]
+    public BattleResult battleResult = BattleResult.None;
+
     [Header("Ally")]
     public List<UnitBase> allies = new List<UnitBase>();
 
     [Header("Enemy")]
     public List<UnitBase> enemies = new List<UnitBase>();
 
+    private bool isDone = false;
+
+    public void Setup()
+    {
+        isDone = false;
+    }
+
     public void CheckUnit()
     {
+        //if (isDone) return;
+
         AssignTargets(allies.Cast<ICombatEntity>().ToList(),
                       enemies.Cast<ICombatEntity>().ToList());
 
         AssignTargets(enemies.Cast<ICombatEntity>().ToList(),
                       allies.Cast<ICombatEntity>().ToList());
+
+        CheckBattleResult();
     }
 
     void AssignTargets(List<ICombatEntity> attackers, List<ICombatEntity> targets)
@@ -71,4 +85,59 @@ public class CombatManager : MonoBehaviour
             }
         }
     }
+
+    void ClearTargets(List<ICombatEntity> attackers)
+    {
+        foreach (var a in attackers)
+        {
+            a.SetTarget(null);
+            a.Done();
+        }
+    }
+
+    //============================ Result ============================
+    void CheckBattleResult()
+    {
+        if (battleResult != BattleResult.None)
+            return; // Đã có kết quả → không check nữa
+
+        isDone = true;
+
+        bool allyAlive = allies.Any(a => a != null && !a.IsDead);
+        bool enemyAlive = enemies.Any(e => e != null && !e.IsDead);
+
+        if (!enemyAlive && allyAlive)
+        {
+            battleResult = BattleResult.AllyWin;
+            OnAllyWin();
+        }
+        else if (!allyAlive && enemyAlive)
+        {
+            battleResult = BattleResult.EnemyWin;
+            OnEnemyWin();
+        }
+    }
+
+    private void OnAllyWin()
+    {
+        Debug.Log("ALLY WIN");
+
+        // Clear target để dừng đánh
+        ClearTargets(allies.Cast<ICombatEntity>().ToList());
+
+        // TODO:
+        // - Play victory animation
+        // - Drop reward
+    }
+
+    private void OnEnemyWin()
+    {
+        Debug.Log("ENEMY WIN");
+
+        ClearTargets(enemies.Cast<ICombatEntity>().ToList());
+
+        // TODO:
+        // - Game Over
+    }
+
 }

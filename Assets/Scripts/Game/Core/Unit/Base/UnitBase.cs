@@ -1,5 +1,6 @@
 ﻿using ProjectDawn.LocalAvoidance;
-using System.Collections;
+using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
@@ -11,6 +12,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     [SerializeField] private UnitVisual visual;
     [SerializeField] private UnitFeedback feedback;
     [SerializeField] private BuffController buff;
+    [SerializeField] private UnitAttack attack;
 
     [Header("Agent")]
     [SerializeField] private Agent agent;
@@ -24,12 +26,16 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackRange = 1.5f;
-    [SerializeField] private int attackDamage = 10;
-    [SerializeField] private float attackCooldown = 0.2f;
+    [SerializeField] private int attackDamage = 1;
+    [SerializeField] private float baseAttackCooldown = 0.5f;
+    [SerializeField] private float attackSpeedMultiplier = 1f;
 
+    private float attackTimer;
     private bool isAttacking;
     private bool isDie;
 
+    [Header("Target")]
+    [ShowInInspector]
     private ICombatEntity target;
 
     // Get set
@@ -46,20 +52,12 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
         // Agent
         agent.Speed = moveSpeed;
         agent.StopDistance = stopDistance;
+
+        // Attack
+        attackTimer = 0f;
     }
 
     #region Behavior
-    public void StartAction()
-    {
-        isAttacking = false;
-    }
-
-    public void StopAction()
-    {
-        StopAllCoroutines();
-        StopMoving();
-        visual.ChangeState(UnitStateEnum.Idle);
-    }
 
     //======================== Idle ======================
     public void Idle()
@@ -72,6 +70,8 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     {
         if(target == null) return;
 
+        agent.Speed = moveSpeed;
+
         visual.ChangeState(UnitStateEnum.Move);
         visual.StartRotateMove();
         visual.Facing(target.Transform);
@@ -79,6 +79,8 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
 
     private void StopMoving()
     {
+        agent.Speed = 0f;
+
         visual.StopRotateMove();
         visual.ChangeState(UnitStateEnum.Idle);
     }
@@ -86,23 +88,52 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     //======================== Attack ======================
     public void Attack()
     {
-        if (isAttacking) return;
+        if (target == null) return;
 
-        StartCoroutine(AttackIEnum());
+        if(attackTimer > 0f)
+        {
+            attackTimer -= Time.deltaTime;
+        }
+
+        attack.FacingAttack();
+
+        if (CanAttack())
+        {
+            PerformAttack();
+        }
     }
 
-    private IEnumerator AttackIEnum()
+    private bool CanAttack()
+    {
+        if (isAttacking) return false;
+        return attackTimer <= 0f;
+    }
+
+    private void PerformAttack()
     {
         isAttacking = true;
+
         visual.ChangeState(UnitStateEnum.Attack);
+
         DealDamage();
         feedback.AttackForce(target.Transform);
 
-        yield return new WaitForSeconds(attackCooldown);
-        visual.ChangeState(UnitStateEnum.Idle);
+        float finalCooldown = baseAttackCooldown / attackSpeedMultiplier;
+        attackTimer = finalCooldown;
 
-        yield return new WaitForSeconds(attackCooldown);
+        // thời gian animation đánh
+        Invoke(nameof(EndAttack), 0.3f);
+    }
+
+    private void EndAttack()
+    {
+        visual.ChangeState(UnitStateEnum.Idle);
         isAttacking = false;
+    }
+
+    public void SetAttackSpeedMultiplier(float value)
+    {
+        attackSpeedMultiplier = Mathf.Max(0.1f, value);
     }
 
     private void DealDamage()
@@ -115,10 +146,9 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
 
         foreach (var hit in hits)
         {
-            IDamageable damageable = hit.GetComponent<IDamageable>();
-            if (damageable != null)
+            if (hit.TryGetComponent<IDamageable>(out var damageable))
             {
-                damageable.TakeDamage(attackDamage);
+                damageable.TakeDamage(this, attackDamage);
             }
         }
     }
@@ -127,20 +157,34 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     public void Die()
     {
         isDie = true;
-        //gameObject.SetActive(false);
+        isAttacking = false;
+        target = null;
+        agent.Speed = 0f;
 
         StopAllCoroutines();
-        visual.ChangeState(UnitStateEnum.Die);
+        visual.StopRotateMove();
+        ChangeState(UnitStateEnum.Die);
     }
 
     //======================== Take Damage ======================
-    public virtual void TakeDamage(int damage)
+    public virtual void TakeDamage(UnitBase fromUnit, int damage)
     {
+        if (isDie) return;
+
         buff.health.CurrentHealth -= damage;
 
         if(buff.health.CurrentHealth <= 0)
         {
             Die();
+
+            // Effect
+            void DoneKnockback()
+            {
+                visual.ChangeState(currentState);
+            }
+
+            Vector2 dir = (transform.position - fromUnit.transform.position).normalized;
+            feedback.KnockbackFly(dir, DoneKnockback);
         }
     }
 
@@ -244,6 +288,12 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
     #endregion
 
     #region Combat 
+    //======================== Combat ======================
+
+    public void StartAction()
+    {
+        isAttacking = false;
+    }
 
     public void SetTarget(ICombatEntity target)
     {
@@ -263,9 +313,20 @@ public abstract class UnitBase : MonoBehaviour, IDamageable, ICombatEntity
         return target;
     }
 
+    public void Done()
+    {
+        StopAllCoroutines();
+        StopMoving();
+
+        ChangeState(UnitStateEnum.Idle);
+        visual.ChangeState(UnitStateEnum.Idle);
+    }
+
     #endregion
 
     #region Buff
+    //======================== Buff ======================
+
     public void UpdateBuff()
     {
         if (isDie) return;

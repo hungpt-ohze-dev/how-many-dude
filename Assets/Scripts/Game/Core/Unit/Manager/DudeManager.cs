@@ -38,7 +38,7 @@ public class DudeManager : MonoBehaviour
     {
         foreach (var dude in listDudes)
         {
-            dude.StopAction();
+            dude.Done();
         }
     }
 }
